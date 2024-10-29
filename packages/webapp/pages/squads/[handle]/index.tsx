@@ -22,7 +22,7 @@ import {
 } from '@dailydotdev/shared/src/components/utilities';
 import {
   getSquadMembers,
-  SQUAD_STATIC_FIELDS_QUERY,
+  getSquadStaticData,
   SquadStaticData,
 } from '@dailydotdev/shared/src/graphql/squads';
 import {
@@ -43,7 +43,8 @@ import {
 } from '@dailydotdev/shared/src/hooks';
 import { oneHour } from '@dailydotdev/shared/src/lib/dateFormat';
 import { ClientError } from 'graphql-request';
-import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import { ApiError } from '@dailydotdev/shared/src/graphql/common';
+import { getReferringUser } from '@dailydotdev/shared/src/graphql/users';
 import { OtherFeedPage, StaleTime } from '@dailydotdev/shared/src/lib/query';
 import { useRouter } from 'next/router';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
@@ -51,8 +52,6 @@ import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { usePrivateSourceJoin } from '@dailydotdev/shared/src/hooks/source/usePrivateSourceJoin';
-import { GET_REFERRING_USER_QUERY } from '@dailydotdev/shared/src/graphql/users';
-import { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import ProtectedPage, {
@@ -84,7 +83,6 @@ const SquadLoading = dynamic(
 interface SourcePageProps extends DynamicSeoProps {
   handle: string;
   initialData?: SquadStaticData;
-  referringUser?: Pick<PublicProfile, 'id' | 'name' | 'image'>;
 }
 
 const PageComponent = (props: ProtectedPageProps & { squad: Squad }) => {
@@ -275,25 +273,10 @@ export async function getServerSideProps({
   try {
     const promises = [];
 
-    promises.push(
-      gqlClient.request<{
-        source: SourcePageProps['initialData'];
-      }>(SQUAD_STATIC_FIELDS_QUERY, {
-        handle,
-      }),
-    );
+    promises.push(getSquadStaticData(handle));
 
     if (userId && campaign) {
-      promises.push(
-        gqlClient
-          .request<{ user: SourcePageProps['referringUser'] }>(
-            GET_REFERRING_USER_QUERY,
-            {
-              id: userId,
-            },
-          )
-          .catch(() => undefined),
-      );
+      promises.push(getReferringUser(userId as string));
     }
 
     const [{ source: squad }, referringUser] = await Promise.all(promises);
@@ -324,7 +307,6 @@ export async function getServerSideProps({
         seo,
         handle,
         initialData: squad,
-        referringUser: referringUser?.user || null,
       },
     };
   } catch (err) {
