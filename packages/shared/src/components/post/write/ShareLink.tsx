@@ -14,7 +14,11 @@ import { useSquadCreate } from '../../../hooks/squads/useSquadCreate';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import useSourcePostModeration from '../../../hooks/source/useSourcePostModeration';
 import { DEFAULT_ERROR } from '../../../graphql/common';
-import { isPrivilegedMember } from '../../squads/utils';
+import {
+  createModerationPromptProps,
+  isPrivilegedMember,
+} from '../../squads/utils';
+import { usePrompt } from '../../../hooks/usePrompt';
 
 interface ShareLinkProps {
   squad: Squad;
@@ -29,13 +33,16 @@ export function ShareLink({
   className,
   onPostSuccess,
 }: ShareLinkProps): ReactElement {
+  const { push } = useRouter();
+  const { showPrompt } = usePrompt();
   const { displayToast } = useToastNotification();
   const [commentary, setCommentary] = useState(post?.title ?? '');
   const { squads, user } = useAuthContext();
   const { onCreatePostModeration, isSuccess: isCreatingPostModeration } =
     useSourcePostModeration({
-      onSuccess: () => {
-        // TODO: Will implement moderation modal popup in MI-583
+      onSuccess: async () => {
+        await showPrompt(createModerationPromptProps);
+        push(squad.permalink);
       },
       onError: () => {
         displayToast(DEFAULT_ERROR);
@@ -50,7 +57,6 @@ export function ShareLink({
     onUpdatePost,
     onUpdatePreview,
   } = usePostToSquad({ onPostSuccess, initialPreview: post?.sharedPost });
-  const { push } = useRouter();
 
   const { onCreateSquad, isLoading } = useSquadCreate({
     onSuccess: (newSquad) => {

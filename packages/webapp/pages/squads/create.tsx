@@ -47,10 +47,14 @@ import {
   WriteFormTabToFormID,
 } from '@dailydotdev/shared/src/components/fields/form/common';
 import useSourcePostModeration from '@dailydotdev/shared/src/hooks/source/useSourcePostModeration';
-import { isPrivilegedMember } from '@dailydotdev/shared/src/components/squads/utils';
-import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
-import { defaultOpenGraph, defaultSeo } from '../../next-seo';
+import {
+  createModerationPromptProps,
+  isPrivilegedMember,
+} from '@dailydotdev/shared/src/components/squads/utils';
+import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { getTemplatedTitle } from '../../components/layouts/utils';
+import { defaultOpenGraph, defaultSeo } from '../../next-seo';
+import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 
 const seo: NextSeoProps = {
   title: getTemplatedTitle('Create post'),
@@ -61,6 +65,7 @@ const seo: NextSeoProps = {
 };
 
 function CreatePost(): ReactElement {
+  const { showPrompt } = usePrompt();
   const { completeAction } = useActions();
   const { push, isReady: isRouteReady, query } = useRouter();
   const { squads, user, isAuthReady, isFetched } = useAuthContext();
@@ -105,7 +110,8 @@ function CreatePost(): ReactElement {
     useSourcePostModeration({
       onSuccess: async () => {
         clearDraft();
-        // TODO: Will implement moderation modal popup in MI-583
+        await showPrompt(createModerationPromptProps);
+        push(squad.permalink);
       },
     });
   const {
