@@ -6,7 +6,7 @@ import {
   USER_SHORT_INFO_FRAGMENT,
   USER_STREAK_FRAGMENT,
 } from './fragments';
-import type { PublicProfile, UserProfile } from '../lib/user';
+import type { PublicProfile, UserShortProfile } from '../lib/user';
 import { Connection, gqlClient } from './common';
 import { SourceMember } from './sources';
 import type { SendType } from '../hooks';
@@ -662,7 +662,7 @@ export const TOP_READER_BADGE_BY_ID = gql`
 
 export const getBasicUserInfo = async (
   userId: string,
-): Promise<UserProfile> => {
+): Promise<UserShortProfile> => {
   const res = await gqlClient.request(GET_REFERRING_USER_QUERY, {
     id: userId,
   });

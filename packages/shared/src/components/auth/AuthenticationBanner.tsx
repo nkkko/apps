@@ -27,8 +27,9 @@ export function AuthenticationBanner({
         authGradientBg,
       )}
     >
-      <Section className="w-[32.5rem]">
-        {children || (
+      <Section className="w-[32.5rem] gap-4">
+        {children}
+        {!children && (
           <OnboardingHeadline
             className={{ title: 'typo-mega3', description: 'mb-8 typo-title3' }}
           />

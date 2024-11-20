@@ -16,24 +16,32 @@ const UserPersonalizedBanner = ({
 }: {
   userId: string;
 }): ReactElement => {
-  const { data: user, isLoading } = useQuery({
+  const { data: user, isError } = useQuery({
     queryKey: ['user_personalized_banner', userId],
     queryFn: () => getBasicUserInfo(userId),
   });
-  console.log('user', user);
+
+  if (isError) {
+    return <AuthenticationBanner />;
+  }
+
   return (
     <AuthenticationBanner>
       {user?.image && (
         <Image
-          className={`mr-2 rounded-full object-cover ${sizeClasses.xlarge}`}
+          className={`mr-2 rounded-10 object-cover ${sizeClasses.xlarge}`}
           src={user.image}
           alt={`Avatar of ${user.username}`}
           type={ImageType.Squad}
         />
       )}
-      <div>Hello</div>
       <OnboardingHeadline
         className={{ title: 'typo-mega3', description: 'mb-8 typo-title3' }}
+        pretitle={user?.username}
+        title="shared it, so it's probably a good one."
+        description={`Be like ${
+          user?.name.split(' ')[0]
+        }, join daily.dev. There is a lot more content waiting for you inside!`}
       />
     </AuthenticationBanner>
   );
@@ -52,7 +60,7 @@ export const PostAuthBanner = (): ReactElement => {
   }
 
   const userId = searchParams.get('userid');
-  console.log('userid', userId);
+
   if (userId) {
     return <UserPersonalizedBanner userId={userId} />;
   }
