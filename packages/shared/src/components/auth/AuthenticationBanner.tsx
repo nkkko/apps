@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, type ReactNode } from 'react';
 import classNames from 'classnames';
 import classed from '../../lib/classed';
 import { OnboardingHeadline } from './OnboardingHeadline';
@@ -12,8 +12,12 @@ import { ButtonVariant } from '../buttons/common';
 const Section = classed('div', 'flex flex-col');
 export const authGradientBg =
   'bg-background-default bg-gradient-to-l from-theme-overlay-active-cabbage from-0% to-theme-overlay-active-onion to-100%';
-
-export function AuthenticationBanner(): ReactElement {
+type AuthenticationBannerProps = {
+  children?: ReactNode | ReactNode[];
+};
+export function AuthenticationBanner({
+  children,
+}: AuthenticationBannerProps): ReactElement {
   const { showLogin } = useAuthContext();
 
   return (
@@ -24,9 +28,11 @@ export function AuthenticationBanner(): ReactElement {
       )}
     >
       <Section className="w-[32.5rem]">
-        <OnboardingHeadline
-          className={{ title: 'typo-mega3', description: 'mb-8 typo-title3' }}
-        />
+        {children || (
+          <OnboardingHeadline
+            className={{ title: 'typo-mega3', description: 'mb-8 typo-title3' }}
+          />
+        )}
       </Section>
       <Section className="w-[23.25rem] pt-2">
         <AuthOptions
