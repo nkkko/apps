@@ -19,6 +19,8 @@
   <a href="https://gitpod.io/#https://github.com/dailydotdev/apps/">
     <img src="https://gitpod.io/button/open-in-gitpod.svg" alt="Open in Gitpod">
   </a>
+
+[![Open in Codeanywhere](https://codeanywhere.com/img/open-in-codeanywhere-btn.svg)](https://app.codeanywhere.com/#https://github.com/dailydotdev/apps)
 </p>
 
 This monorepo contains daily.dev's application suite. The repo includes the web app and the extension, along with shared components for the two.
